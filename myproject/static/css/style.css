@@ -1,0 +1,17 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height:100vh;
+    font-size:3rem;
+    background-color: black;
+    color:whitesmoke;
+    background-color: whitesmoke;
+}
+
+h1 {
+    text-align:center;
+}
