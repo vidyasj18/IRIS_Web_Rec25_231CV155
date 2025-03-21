@@ -4,7 +4,7 @@ from .models import Post
 # Create your views here.
 # created a menu list template
 def posts_list(request):
-    posts = Post.objects.order_by('-date')
+    posts = Post.objects.all().order_by('-date')
     return render(request, 'posts/posts_list.html',{'posts':posts})
 
 # code for individual posts pages function to display the post
