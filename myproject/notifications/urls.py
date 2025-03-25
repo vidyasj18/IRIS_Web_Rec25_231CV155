@@ -1,9 +1,9 @@
 from django.urls import path
 from . import views
 
-app_name = 'notifications'
-
-# all the urls related to notifications will be defined here.
 urlpatterns = [
     path('', views.notifications_list, name='notifications_list'),
+    path('mark-as-read/<int:notification_id>/', views.mark_as_read, name='mark_as_read'),
+    path('delete/<int:notification_id>/', views.delete_notification, name='delete_notification'),
+    path('clear-all/', views.clear_all_notifications, name='clear_all_notifications'),
 ]

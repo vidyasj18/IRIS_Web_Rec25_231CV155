@@ -1,11 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
 
-# Create your models here.
-from django.contrib.auth.models import AbstractUser
-
 # defines the `CustomUser` model which extends Django's built-in
 # User` model to include `branch` and a unique `email` field.
+
 class CustomUser(AbstractUser):
     branch = models.CharField(max_length=100)
     email = models.EmailField(unique=True)

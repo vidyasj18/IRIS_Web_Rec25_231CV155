@@ -1,0 +1,35 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto mt-10">
+    <h1 class="text-2xl font-bold mb-4">View Requests</h1>
+    <table class="table-auto w-full">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Equipment</th>
+                <th>Quantity</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in requests %}
+            <tr>
+                <td>{{ request.user.username }}</td>
+                <td>{{ request.equipment.name }}</td>
+                <td>{{ request.quantity }}</td>
+                <td>{{ request.status }}</td>
+                <td>
+                    {% if request.status == 'Pending' %}
+                    <a href="{% url 'approve_request' request.id %}" class="text-green-500">Approve</a> |
+                    <a href="{% url 'reject_request' request.id %}" class="text-red-500">Reject</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

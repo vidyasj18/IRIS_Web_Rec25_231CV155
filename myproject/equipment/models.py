@@ -38,4 +38,3 @@ class EquipmentRequest(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         Notification.objects.create(user=self.user, message=f'Your request for {self.equipment.name} is now {self.status}.')
-
