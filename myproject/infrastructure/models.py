@@ -53,3 +53,13 @@ class Waitlist(models.Model):
     def __str__(self):
         return f"Waitlist: {self.student.username} for {self.infrastructure.name} on {self.date} {self.time_slot}"
 
+# this model stores the messages for users.
+# contains the message, time of creation and knows wether user has read the notification or not.
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)  # Track if the notification is read
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Notification for {self.user.username} - {self.message[:50]}"

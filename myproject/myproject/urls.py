@@ -24,13 +24,14 @@ from django.conf import settings
 
 # contains all the urlpatterns for all the apps in the project
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls), # admin panel
     path('',views.homepage ),
     path('about/',views.about ),
     path('posts/', include('posts.urls')),
     path('users/', include('users.urls')),
     path('equipment/', include('equipment.urls')), 
     path('notifications/', include('notifications.urls')),
+    path('api/infrastructure/', include('infrastructure.urls')), # API will now be accessible at /api/infrastructure/
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

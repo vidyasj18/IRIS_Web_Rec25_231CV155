@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4">
+    <h1 class="text-3xl font-bold text-center my-4">Book a Sports Facility</h1>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for infrastructure in infrastructures %}
+        <div class="bg-white shadow-lg rounded-lg p-4">
+            <h2 class="text-xl font-semibold">{{ infrastructure.name }}</h2>
+            <p>Location: {{ infrastructure.location }}</p>
+            <p>Capacity: {{ infrastructure.capacity }}</p>
+            <p>Operating Hours: {{ infrastructure.operating_hours }}</p>
+            <button class="mt-2 bg-blue-500 text-white px-4 py-2 rounded">Book Now</button>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

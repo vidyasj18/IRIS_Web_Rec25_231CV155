@@ -12,6 +12,7 @@ For the Infrastructure Booking Module, serializers help in:
 
 from rest_framework import serializers
 from .models import Infrastructure, Booking, Waitlist
+from .models import Notification
 
 # serializer for handling infrastructure details.
 # Used to list available sports facilities.
@@ -87,3 +88,11 @@ def create(self, validated_data):
 
         validated_data['position'] = position
         return super().create(validated_data)
+
+
+# defining a serilizer to convert Notification model instances into JSON format.
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = '__all__'  
+
