@@ -9,7 +9,15 @@ class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     message = models.CharField(max_length=255)
     is_read = models.BooleanField(default=False)
-    timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f'{self.user.username}: {self.message}'
+    
+# 
+from django.db import models
+
+# class Booking(models.Model):
+#     start_time = models.DateTimeField()  # Requires full date & time
+#     end_time = models.TimeField()  
+#     # Only requires HH:MM:SS
+

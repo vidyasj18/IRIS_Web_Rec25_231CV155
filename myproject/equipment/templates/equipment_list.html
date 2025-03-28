@@ -2,8 +2,10 @@
 {% load static %}
 
 {% block content %}
-<div class="container mx-auto mt-10">
-    <h1 class="text-2xl font-bold mb-4">Equipment List</h1>
+<div class="container mx-auto mt-10 bg-gray-900 text-white">
+    <header class="bg-black py-4 px-6">
+        <h1 class="text-2xl font-bold mb-4">Equipment List</h1>
+    </header>
     <table class="table-auto w-full">
         <thead>
             <tr>
@@ -26,6 +28,9 @@
             {% endfor %}
         </tbody>
     </table>
+    <main>
+        <a href="../index.html" class="text-purple-400 hover:text-purple-600 mt-4 inline-block">Back to Equipments</a>
+    </main>
     <a href="{% url 'request_equipment' %}" class="mt-4 inline-block text-blue-500">Request Equipment</a>
 </div>
 {% endblock %}

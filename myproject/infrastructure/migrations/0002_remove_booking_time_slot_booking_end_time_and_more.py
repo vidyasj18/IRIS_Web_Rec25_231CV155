@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='booking',
             name='end_time',
-            field=models.DateTimeField(default=datetime.datetime(2025, 3, 25, 15, 39, 33, 288280, tzinfo=datetime.timezone.utc)),
+            field=models.DateTimeField(default="2025-03-25 23:59:59"),
             preserve_default=False,
         ),
         migrations.AddField(

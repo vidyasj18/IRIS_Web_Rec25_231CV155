@@ -16,3 +16,5 @@ class EquipmentRequestForm(forms.ModelForm):
     class Meta:
         model = EquipmentRequest
         fields = ['quantity', 'duration']
+    
+

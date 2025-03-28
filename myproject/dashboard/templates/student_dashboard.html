@@ -1,0 +1,33 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Student Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="max-w-4xl mx-auto bg-white p-6 shadow-lg rounded-lg">
+        <h1 class="text-2xl font-bold text-center mb-6">Student Dashboard</h1>
+
+        <h2 class="text-lg font-semibold mt-4">Available Equipment</h2>
+        <ul>
+            {% for equipment in available_equipment %}
+                <li class="p-2 border rounded mt-2 flex justify-between">
+                    {{ equipment.name }} ({{ equipment.quantity }} available)
+                    <a href="{% url 'book_equipment' equipment.id %}" class="bg-blue-500 text-white px-4 py-1 rounded">Book</a>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <h2 class="text-lg font-semibold mt-4">Available Facilities</h2>
+        <ul>
+            {% for facility in available_facilities %}
+                <li class="p-2 border rounded mt-2 flex justify-between">
+                    {{ facility.name }} ({{ facility.location }})
+                    <a href="{% url 'request_facility' facility.id %}" class="bg-green-500 text-white px-4 py-1 rounded">Request</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>

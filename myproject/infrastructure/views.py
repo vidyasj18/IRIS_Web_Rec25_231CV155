@@ -4,10 +4,16 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
-from notifications.utils import send_notification
-
+from .models import Booking, Notification
+from .serializers import BookingSerializer, NotificationSerializer
+from .models import Waitlist
+from .serializers import WaitlistSerializer
 from .models import Infrastructure, Booking
 from .serializers import InfrastructureSerializer, BookingSerializer
+from datetime import datetime, date
+from django.http import JsonResponse
+from notifications.utils import send_notification
+
 
 # Create your views here.
 
@@ -163,6 +169,10 @@ class BookingViewSet(viewsets.ModelViewSet):
 # This view allows students to book sports infrastructure and track their waitlist.
 # Students can join a waitlist if a slot is booked.
 # They receive a notification when moved to an active booking.
+class WaitlistViewSet(viewsets.ModelViewSet):
+    queryset = Waitlist.objects.all()
+    serializer_class = WaitlistSerializer
+
     @action(detail=True, methods=['post'])
     def join_waitlist(self, request, pk=None):
         infrastructure = self.get_object()
@@ -176,3 +186,35 @@ class BookingViewSet(viewsets.ModelViewSet):
         send_notification(user, "You have been added to the waitlist.")
         return Response({'message': 'Added to waitlist'}, status=status.HTTP_201_CREATED)
 
+
+# This sends notifications when a booking is approved or rejected.
+# checks if the booking status has changed(approved/rejected).
+# creates a notification for the user.
+
+class BookingViewSet(viewsets.ModelViewSet):
+    queryset = Booking.objects.all()
+    serializer_class = BookingSerializer
+
+    def update(self, request, *args, **kwargs):
+        """Custom update method to send notifications on approval/rejection."""
+        instance = self.get_object()
+        old_status = instance.status  # Get previous status
+
+        response = super().update(request, *args, **kwargs)  # Perform update
+
+        new_status = request.data.get('status')  # New status from request
+        if old_status != new_status:  # If status changed
+            message = f"Your booking for {instance.infrastructure.name} has been {new_status}."
+            Notification.objects.create(user=instance.user, message=message)
+
+        return response
+    
+
+def create_booking(request):
+    if request.method == "POST":
+        time_str = request.POST.get(default=now)  # Get "23:59:59" from request
+        start_datetime = datetime.combine(date.today(), datetime.strptime(time_str, "%H:%M:%S").time())
+
+        # Save to model
+        booking = Booking.objects.create(start_time=start_datetime)
+        return JsonResponse({"message": "Booking created successfully"})

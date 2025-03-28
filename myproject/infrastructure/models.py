@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from datetime import datetime, time, date
+from django.utils.timezone import now
 
 # Create your models here.
 # we have used the custom user model
@@ -22,9 +24,7 @@ class Infrastructure(models.Model):
 class Booking(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     infrastructure = models.ForeignKey(Infrastructure, on_delete=models.CASCADE)
-    date = models.DateField() # The date for which booking is requested.
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
+    date = models.DateField(default=date.today)
     status = models.CharField(max_length=20, choices=[
         ('Pending', 'Pending'),
         ('Approved', 'Approved'),
@@ -32,7 +32,7 @@ class Booking(models.Model):
         ('Cancelled', 'Cancelled')
     ], default='Pending')
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField()
 
 # Returns a readable string indicating which user booked which facility and the current status.
     def __str__(self):
@@ -46,7 +46,7 @@ class Waitlist(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     infrastructure = models.ForeignKey(Infrastructure, on_delete=models.CASCADE)
     date = models.DateField()
-    time_slot = models.TimeField()
+    # time_slot = models.TimeField(default=now)
     position = models.IntegerField() # This show's the users position in that waiting list.
 
 # Returns a descriptive string that shows the waitlist entry.
@@ -59,7 +59,7 @@ class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
     message = models.TextField()
     is_read = models.BooleanField(default=False)  # Track if the notification is read
-    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Notification for {self.user.username} - {self.message[:50]}"
+    

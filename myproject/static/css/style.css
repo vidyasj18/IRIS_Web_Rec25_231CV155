@@ -6,7 +6,7 @@
 
 body {
     min-height: 100vh;
-    background-color: #385170;
+    background-color: whitesmoke;
     color: whitesmoke;
     font-size: 3rem;
 }
@@ -14,7 +14,7 @@ body {
 nav {
     padding: 1rem;
     background-color: #9fd3c7;
-    color: #142d4c;
+    color: whitesmoke;
     font-size: 1.5rem;
 }
 
@@ -38,7 +38,6 @@ p {
 
 a {
     text-decoration: none;
-    color: #81dbb8;
 }
 
 a:hover {

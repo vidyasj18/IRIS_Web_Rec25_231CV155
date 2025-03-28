@@ -13,6 +13,7 @@ For the Infrastructure Booking Module, serializers help in:
 from rest_framework import serializers
 from .models import Infrastructure, Booking, Waitlist
 from .models import Notification
+from datetime import datetime, date
 
 # serializer for handling infrastructure details.
 # Used to list available sports facilities.
@@ -26,9 +27,15 @@ class BookingSerializer(serializers.ModelSerializer):
     student = serializers.ReadOnlyField(source='student.username')  # Read-only field to display the student's username
     infrastructure_name = serializers.ReadOnlyField(source='infrastructure.name')
 
+    # def validate_start_time(self, value):
+    #     if isinstance(value, str):  # Ensure it's a string before converting
+    #         return datetime.combine(date.today(), datetime.strptime(value, "%H:%M:%S").time())
+    #     return value
+    # time_slot = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", input_formats=["%Y-%m-%d %H:%M:%S"])
+
     class Meta:
         model = Booking
-        fields = '__all__'
+        fields = "__all__,"
 
 # Custom validation to ensure:
 #   - The student can book only 1 slot per day.
@@ -48,8 +55,7 @@ class BookingSerializer(serializers.ModelSerializer):
         overlapping_booking = Booking.objects.filter(
             infrastructure=infrastructure,
             booking_date=booking_date,
-            start_time__lt=data.get('end_time'),
-            end_time__gt=data.get('start_time'),
+            # time_slot = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", input_formats=["%Y-%m-%d %H:%M:%S"]),
             status="Approved"
         )
 
@@ -78,8 +84,8 @@ class WaitlistSerializer(serializers.ModelSerializer):
 def create(self, validated_data):
         infrastructure = validated_data['infrastructure']
         booking_date = validated_data['booking_date']
-        start_time = validated_data['start_time']
-        end_time = validated_data['end_time']
+        # start_time = validated_data['start_time']
+        # end_time = validated_data['end_time']
 
         # Determine the waitlist position
         position = Waitlist.objects.filter(

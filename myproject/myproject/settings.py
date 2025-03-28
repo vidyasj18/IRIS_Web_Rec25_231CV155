@@ -29,6 +29,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# To send reminders 30 minutes before booking time, we use Celery for background tasks.
+CELERY_BROKER_URL = 'redis://localhost:6379/0'  # Use Redis as message broker
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
 
 # Application definition
 
@@ -46,6 +50,8 @@ INSTALLED_APPS = [
     'notifications',
     'infrastructure',
     'rest_framework',
+    'django_celery_beat',
+    'dashboard',
 ]
 
 MIDDLEWARE = [

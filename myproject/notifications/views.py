@@ -1,6 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Notification
+from notifications.utils import send_notification
+from django.http import HttpResponse
+
+# creating a view to send notifications.
+def send_notification(request):
+    # Your notification sending logic here
+    return HttpResponse("Notification sent!")
 
 @login_required
 def notifications_list(request):
