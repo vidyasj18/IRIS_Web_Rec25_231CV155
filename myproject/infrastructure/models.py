@@ -1,7 +1,9 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from datetime import datetime, time, date
+from django.utils import timezone
 from django.utils.timezone import now
+from datetime import datetime
 
 # Create your models here.
 # we have used the custom user model
@@ -22,18 +24,23 @@ class Infrastructure(models.Model):
     
 # shows the booking details of the user.
 class Booking(models.Model):
-    student = models.ForeignKey(User, on_delete=models.CASCADE)
-    infrastructure = models.ForeignKey(Infrastructure, on_delete=models.CASCADE)
+    student = models.ForeignKey(User, on_delete=models.CASCADE,default=1)
+    infrastructure = models.ForeignKey(
+        'Infrastructure', 
+        on_delete=models.CASCADE,
+        null = True,
+        blank = True
+    )
     date = models.DateField(default=date.today)
+    time_slot = models.TimeField(default=timezone.now)
     status = models.CharField(max_length=20, choices=[
         ('Pending', 'Pending'),
         ('Approved', 'Approved'),
         ('Rejected', 'Rejected'),
         ('Cancelled', 'Cancelled')
     ], default='Pending')
-
-    created_at = models.DateTimeField()
-
+    start_time = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(auto_now_add=True)
 # Returns a readable string indicating which user booked which facility and the current status.
     def __str__(self):
         return f"{self.student.username} - {self.infrastructure.name} - {self.date} {self.time_slot}"
@@ -46,7 +53,7 @@ class Waitlist(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE)
     infrastructure = models.ForeignKey(Infrastructure, on_delete=models.CASCADE)
     date = models.DateField()
-    # time_slot = models.TimeField(default=now)
+    time_slot = models.TimeField(default=now)
     position = models.IntegerField() # This show's the users position in that waiting list.
 
 # Returns a descriptive string that shows the waitlist entry.

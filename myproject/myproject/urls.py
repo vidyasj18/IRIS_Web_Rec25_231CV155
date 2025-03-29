@@ -25,13 +25,13 @@ from django.conf import settings
 # contains all the urlpatterns for all the apps in the project
 urlpatterns = [
     path('admin/', admin.site.urls), # admin panel
-    path('',views.homepage ),
+    path('',views.homepage),
     path('about/',views.about ),
     path('posts/', include('posts.urls')),
     path('users/', include('users.urls')),
     path('equipment/', include('equipment.urls')), 
     path('notifications/', include('notifications.urls')),
-    path('api/infrastructure/', include('infrastructure.urls')), # API will now be accessible at /api/infrastructure/
+    path('infrastructure/', include('infrastructure.urls')), # API will now be accessible at /api/infrastructure/
     path('dashboard/', include('dashboard.urls'))
 ]
 

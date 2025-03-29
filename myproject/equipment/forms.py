@@ -17,4 +17,3 @@ class EquipmentRequestForm(forms.ModelForm):
         model = EquipmentRequest
         fields = ['quantity', 'duration']
     
-

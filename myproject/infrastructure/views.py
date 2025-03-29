@@ -13,6 +13,8 @@ from .serializers import InfrastructureSerializer, BookingSerializer
 from datetime import datetime, date
 from django.http import JsonResponse
 from notifications.utils import send_notification
+from django.shortcuts import render
+from .models import Infrastructure 
 
 
 # Create your views here.
@@ -212,9 +214,13 @@ class BookingViewSet(viewsets.ModelViewSet):
 
 def create_booking(request):
     if request.method == "POST":
-        time_str = request.POST.get(default=now)  # Get "23:59:59" from request
+        time_str = request.POST.get(default=timezone.now)  # Get "23:59:59" from request
         start_datetime = datetime.combine(date.today(), datetime.strptime(time_str, "%H:%M:%S").time())
 
         # Save to model
         booking = Booking.objects.create(start_time=start_datetime)
         return JsonResponse({"message": "Booking created successfully"})
+    
+def infrastructure_list(request):
+    infrastructures = Infrastructure.objects.all()
+    return render(request, "infrastructure/infrastructure_list.html", {"infrastructures": infrastructures})

@@ -9,7 +9,7 @@ from notifications.models import Notification
 @login_required
 def equipment_list(request):
     equipments = Equipment.objects.all()
-    return render(request, 'equipment/equipment_list.html', {'equipments': equipments})
+    return render(request, 'equipment_list.html', {'equipments': equipments})
 
 # admin can add or remove the equipments, courts or instruments based on their availability
 # If the instrument is available then only they can add to this list. 

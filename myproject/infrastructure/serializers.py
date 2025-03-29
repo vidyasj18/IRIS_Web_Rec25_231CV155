@@ -13,7 +13,9 @@ For the Infrastructure Booking Module, serializers help in:
 from rest_framework import serializers
 from .models import Infrastructure, Booking, Waitlist
 from .models import Notification
-from datetime import datetime, date
+from datetime import datetime
+from django.utils import timezone
+from django.db import models
 
 # serializer for handling infrastructure details.
 # Used to list available sports facilities.
@@ -26,6 +28,8 @@ class InfrastructureSerializer(serializers.ModelSerializer):
 class BookingSerializer(serializers.ModelSerializer):
     student = serializers.ReadOnlyField(source='student.username')  # Read-only field to display the student's username
     infrastructure_name = serializers.ReadOnlyField(source='infrastructure.name')
+    start_time = models.DateTimeField(default=timezone.now, blank=True, null=True)
+
 
     # def validate_start_time(self, value):
     #     if isinstance(value, str):  # Ensure it's a string before converting
@@ -55,7 +59,7 @@ class BookingSerializer(serializers.ModelSerializer):
         overlapping_booking = Booking.objects.filter(
             infrastructure=infrastructure,
             booking_date=booking_date,
-            # time_slot = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", input_formats=["%Y-%m-%d %H:%M:%S"]),
+            time_slot = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", input_formats=["%Y-%m-%d %H:%M:%S"]),
             status="Approved"
         )
 
@@ -84,8 +88,8 @@ class WaitlistSerializer(serializers.ModelSerializer):
 def create(self, validated_data):
         infrastructure = validated_data['infrastructure']
         booking_date = validated_data['booking_date']
-        # start_time = validated_data['start_time']
-        # end_time = validated_data['end_time']
+        start_time = validated_data['start_time']
+        end_time = validated_data['end_time']
 
         # Determine the waitlist position
         position = Waitlist.objects.filter(

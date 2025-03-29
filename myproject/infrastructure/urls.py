@@ -2,6 +2,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import InfrastructureViewSet, BookingViewSet, WaitlistViewSet
+from . import views
 
 router = DefaultRouter() # simplifies URL routing for APIs
 # registers "InfrastructureViewSet" at /InfrastructureViewSet.
@@ -14,5 +15,6 @@ router.register(r'bookings', BookingViewSet, basename='booking')
 # router.register(r'waitlist', WaitlistViewSet, basename='waitlist')
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('', include(router.urls)), 
+    path("",views.infrastructure_list,name="infrastructure_list"),
 ]

@@ -31,16 +31,6 @@
             background-size: 400% 400%;
             animation: animatedGradient 8s ease infinite;
         }
-        
-        @keyframes movingLines {
-            from { background-position: 0 0; }
-            to { background-position: 100% 100%; }
-        }
-        {% comment %} .bg-lines {
-            background: linear-gradient(135deg, rgba(128, 0, 128, 0.3) 25%, transparent 25%, transparent 50%, rgba(128, 0, 128, 0.3) 50%, rgba(128, 0, 128, 0.3) 75%, transparent 75%, transparent);
-            background-size: 40px 40px;
-            animation: movingLines 10s linear infinite;
-        } {% endcomment %}
     </style>
 
 </head>
@@ -50,20 +40,20 @@
         <h1 class="text-2xl font-light text-white opacity-80 tracking-wide">Sports Infrastructure Module</h1>
         <ul class="flex justify-end space-x-6">
             <a href="/about" class="text-white font-light px-2 py-2 rounded transition-colors duration-300 hover:text-purple-800">
-                <span role="img" aria-lebel="Home" title="home">Home</span>
+                Home
             </a> 
             <a href="/about" class="text-white font-light px-2 py-2 rounded transition-colors duration-300 hover:text-purple-800">
-                <span role="img" aria-lebel="About" title="About">About</span>
+                About
             </a> 
             {% comment %} <a href="{% url 'posts:list' %}" class="hover:text-gray-300">
                 <span role="img" aria-lebel="Posts" title="Posts">Menu</span>
             </a>  | {% endcomment %}
             <a href="{% url 'users:register' %}" class="text-white font-light px-2 py-2 rounded transition-colors duration-300 hover:text-purple-800">
-                <span role="img" aria-lebel="User Registration" title="User Registration">Register</span>
+                Register
             </a> 
 
             <a href="{% url 'users:login' %}" class="text-white font-light px-2 py-2 rounded transition-colors duration-300 hover:text-purple-800">
-                <span role="img" aria-lebel="User Login" title="User Login">Login</span>
+                Login
             </a>
         </ul>
     </nav>
@@ -78,18 +68,18 @@
     </section>
 
     <!-- Features Section -->
-    <section class="relative py-16 px-6 max-w-6xl mx-auto bg-lines">
-        <h2 class="text-3xl font-bold text-center mb-10">Features</h2>
-        <div class="grid md:grid-cols-2 gap-8">
-            <div class="shadow-lg border border-gray-700 p-6 rounded-lg hover:shadow-xl transition-shadow duration-300 bg-gray-800">
-                <a href="equipments/index.html" class="text-2xl font-semibold mb-2 text-white block">Equipments Management</a>
-                <p class="text-gray-300">Keep track of all sports equipment, their availability, and maintenance status.</p>
-            </div>
-            <div class="shadow-lg border border-gray-700 p-6 rounded-lg hover:shadow-xl transition-shadow duration-300 bg-gray-800">
-                <a href="infrastructure/index.html" class="text-2xl font-semibold mb-2 text-white block">Infrastructure Management</a>
-                <p class="text-gray-300">Monitor and manage sports facilities, stadiums, and training centers efficiently.</p>
-            </div>
-        </div>
+    
+    <section id="equipment">
+        {% include "index.html" %}
+    </section>
+    <section id="infrastructure">
+        {% include "booking.html" %}
+    </section>
+    <section id="dashboard">
+        {% include "student_dashboard.html" %}
+    </section>
+    <section id="notifications">
+        {% include "notifications_list.html" %}
     </section>
     
 

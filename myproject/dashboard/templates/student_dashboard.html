@@ -4,30 +4,78 @@
 <head>
     <title>Student Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{% static 'js/dashboard.js' %}" defer></script>
+
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }        
+    </style>
+
 </head>
 <body class="bg-gray-100 p-6">
+    <label for="time_slot">Choose Time:</label>
+    <input type="datetime-local" name="time_slot" id="time_slot" required>
+
     <div class="max-w-4xl mx-auto bg-white p-6 shadow-lg rounded-lg">
-        <h1 class="text-2xl font-bold text-center mb-6">Student Dashboard</h1>
+        <h1 class="text-2xl font-bold text-center mb-6 animate-fade-in">Student Dashboard</h1>
 
-        <h2 class="text-lg font-semibold mt-4">Available Equipment</h2>
-        <ul>
-            {% for equipment in available_equipment %}
-                <li class="p-2 border rounded mt-2 flex justify-between">
-                    {{ equipment.name }} ({{ equipment.quantity }} available)
-                    <a href="{% url 'book_equipment' equipment.id %}" class="bg-blue-500 text-white px-4 py-1 rounded">Book</a>
-                </li>
-            {% endfor %}
-        </ul>
+        <!-- Available Equipment -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
+            <div class="bg-white p-4 shadow-lg rounded-lg transition-transform duration-300 hover:scale-105">
+                <h2 class="text-xl font-semibold mb-2">Available Equipment</h2>
+                <ul id="equipment-list">
+                    {% for equipment in available_equipment %}
+                        <li class="p-2 border rounded mt-2 flex justify-between">
+                            {{ equipment.name }} ({{ equipment.quantity }} available)
+                            <a href="{% url 'book_equipment' equipment.id %}" 
+                            class="bg-blue-500 text-white px-4 py-1 rounded">Book</a>
+                        </li>
+                    {% empty %}
+                    <p class="text-red-500">No equipment available.</p>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
 
+        <!-- Available Facilities -->
         <h2 class="text-lg font-semibold mt-4">Available Facilities</h2>
         <ul>
             {% for facility in available_facilities %}
                 <li class="p-2 border rounded mt-2 flex justify-between">
-                    {{ facility.name }} ({{ facility.location }})
-                    <a href="{% url 'request_facility' facility.id %}" class="bg-green-500 text-white px-4 py-1 rounded">Request</a>
+                    <div>
+                        <p><strong>{{ facility.name }}</strong> ({{ facility.location }})</p>
+                        <p>Capacity: {{ facility.capacity }}</p>
+                    </div>
+                    <div>
+                        {% if facility.availability %}
+                            <a href="{% url 'request_facility' facility.id %}" 
+                               class="bg-green-500 text-white px-4 py-1 rounded">Request</a>
+                        {% else %}
+                            <button onclick="joinWaitlist({{ facility.id }})" 
+                                    class="bg-yellow-500 text-white px-4 py-1 rounded">
+                                Join Waitlist
+                            </button>
+                            <p id="waitlist-status-{{ facility.id }}" class="text-sm text-gray-600"></p>
+                        {% endif %}
+                    </div>
                 </li>
+            {% empty %}
+                <p class="text-red-500">No facilities available.</p>
             {% endfor %}
         </ul>
     </div>
+
+    <!-- CSRF Token for JavaScript -->
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+    <!-- Link to External JavaScript -->
+    <script src="{% static 'js/waitlist.js' %}"></script>
+
 </body>
 </html>
