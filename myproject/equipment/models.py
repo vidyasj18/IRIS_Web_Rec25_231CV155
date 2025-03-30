@@ -11,6 +11,7 @@ class Equipment(models.Model):
     availability = models.BooleanField(default=True)
     quantity = models.PositiveIntegerField()
     condition = models.CharField(max_length=100)
+    is_available = models.BooleanField(default=True) 
 
     def __str__(self):
         return self.name

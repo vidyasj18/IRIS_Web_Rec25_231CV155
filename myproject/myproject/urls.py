@@ -21,6 +21,7 @@ from django.urls import path, include
 from . import views
 from django.conf.urls.static import static 
 from django.conf import settings 
+from django.urls import get_resolver
 
 # contains all the urlpatterns for all the apps in the project
 urlpatterns = [
@@ -32,7 +33,15 @@ urlpatterns = [
     path('equipment/', include('equipment.urls')), 
     path('notifications/', include('notifications.urls')),
     path('infrastructure/', include('infrastructure.urls')), # API will now be accessible at /api/infrastructure/
-    path('dashboard/', include('dashboard.urls'))
+    path('dashboard/', include('dashboard.urls')),
+    path('api/', include('dashboard.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# Debugging function to print all available URLs
+def list_urls():
+    resolver = get_resolver()
+    return [url.pattern.regex.pattern for url in resolver.url_patterns]
+
+print("🔍 Registered URLs:", list_urls())

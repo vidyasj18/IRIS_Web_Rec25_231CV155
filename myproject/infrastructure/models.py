@@ -1,72 +1,75 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from datetime import datetime, time, date
-from django.utils import timezone
 from django.utils.timezone import now
-from datetime import datetime
+from equipment.models import Equipment
 
-# Create your models here.
-# we have used the custom user model
 User = get_user_model()
 
-# contains all the information related to equipment while booking.
+# Model to store sports infrastructure details
 class Infrastructure(models.Model):
     name = models.CharField(max_length=255, unique=True)
-    location = models.CharField(max_length=255) # location of equipment
-    capacity = models.IntegerField() # quantity of equipment available
+    location = models.CharField(max_length=255)  # Location of facility
+    capacity = models.IntegerField(default=10)  # Maximum number of bookings allowed
     availability = models.BooleanField(default=True)
     operating_hours = models.CharField(max_length=50)  # e.g., "6 AM - 10 PM"
 
-# Returns the facility name, making it easier to identify instances in the Django admin or shell.
     def __str__(self):
         return self.name
 
-    
-# shows the booking details of the user.
+# Booking model to store user reservations
 class Booking(models.Model):
-    student = models.ForeignKey(User, on_delete=models.CASCADE,default=1)
-    infrastructure = models.ForeignKey(
-        'Infrastructure', 
-        on_delete=models.CASCADE,
-        null = True,
-        blank = True
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bookings")
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE, related_name="bookings",default=True)
+    request_date = models.DateTimeField(auto_now_add=True)
+    requested_slot = models.DateTimeField()
+    status = models.CharField(
+        max_length=20, 
+        choices=[('Pending', 'Pending'), ('Approved', 'Approved'), ('Rejected', 'Rejected')],
+        default='Pending'
     )
-    date = models.DateField(default=date.today)
-    time_slot = models.TimeField(default=timezone.now)
-    status = models.CharField(max_length=20, choices=[
-        ('Pending', 'Pending'),
-        ('Approved', 'Approved'),
-        ('Rejected', 'Rejected'),
-        ('Cancelled', 'Cancelled')
-    ], default='Pending')
-    start_time = models.DateTimeField(default=timezone.now)
-    created_at = models.DateTimeField(auto_now_add=True)
-# Returns a readable string indicating which user booked which facility and the current status.
-    def __str__(self):
-        return f"{self.student.username} - {self.infrastructure.name} - {self.date} {self.time_slot}"
-    
+    admin_comment = models.TextField(blank=True, null=True)
 
-# This shows details about the waiting list for that particular equipment 
-# when the equipment is unavailable, that time user can click on this and be in the waiting list.
-# This also shows in what position you are in that waitinglist, once the people ahead of you finish their timeslots user can get the slot.
-class Waitlist(models.Model):
-    student = models.ForeignKey(User, on_delete=models.CASCADE)
-    infrastructure = models.ForeignKey(Infrastructure, on_delete=models.CASCADE)
+    def __str__(self):
+        return f"{self.user.username} - {self.equipment.name} ({self.status})"
+
+# Model for waitlist when facility is fully booked
+class WaitlistBooking(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="waitlist_bookings")
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE, related_name="waitlists",default=True)
     date = models.DateField()
     time_slot = models.TimeField(default=now)
-    position = models.IntegerField() # This show's the users position in that waiting list.
+    position = models.IntegerField()  # User's position in the waitlist
 
-# Returns a descriptive string that shows the waitlist entry.
     def __str__(self):
-        return f"Waitlist: {self.student.username} for {self.infrastructure.name} on {self.date} {self.time_slot}"
+        return f"Waitlist: {self.user.username} for {self.equipment.name} on {self.date} {self.time_slot}"
 
-# this model stores the messages for users.
-# contains the message, time of creation and knows wether user has read the notification or not.
+    class Meta:
+        ordering = ['position']  # Ensure waitlist is ordered by position
+
+# Model to store notifications for users
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
     message = models.TextField()
     is_read = models.BooleanField(default=False)  # Track if the notification is read
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Notification for {self.user.username} - {self.message[:50]}"
-    
+
+# Facility request model for users to request bookings
+class FacilityRequest(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('waitlisted', 'Waitlisted'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="facility_requests")
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE, default=1)  # Replace 1 with a valid facility ID
+    time_slot = models.TimeField(default=now)  # Requested booking time
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(default=now)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.equipment.name} ({self.status})"

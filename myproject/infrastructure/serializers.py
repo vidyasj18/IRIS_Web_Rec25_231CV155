@@ -11,7 +11,7 @@ For the Infrastructure Booking Module, serializers help in:
 """
 
 from rest_framework import serializers
-from .models import Infrastructure, Booking, Waitlist
+from .models import Infrastructure, Booking, WaitlistBooking
 from .models import Notification
 from datetime import datetime
 from django.utils import timezone
@@ -26,16 +26,8 @@ class InfrastructureSerializer(serializers.ModelSerializer):
 
 # serializer for handling booking details.
 class BookingSerializer(serializers.ModelSerializer):
-    student = serializers.ReadOnlyField(source='student.username')  # Read-only field to display the student's username
-    infrastructure_name = serializers.ReadOnlyField(source='infrastructure.name')
-    start_time = models.DateTimeField(default=timezone.now, blank=True, null=True)
-
-
-    # def validate_start_time(self, value):
-    #     if isinstance(value, str):  # Ensure it's a string before converting
-    #         return datetime.combine(date.today(), datetime.strptime(value, "%H:%M:%S").time())
-    #     return value
-    # time_slot = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", input_formats=["%Y-%m-%d %H:%M:%S"])
+    user = serializers.ReadOnlyField(source='user.username')  # Read-only field to display the student's username
+    facility_name = serializers.ReadOnlyField(source='facility.name')
 
     class Meta:
         model = Booking
@@ -45,21 +37,20 @@ class BookingSerializer(serializers.ModelSerializer):
 #   - The student can book only 1 slot per day.
 #   - Overlapping bookings are not allowed.
   
-    
-    def validate(self, data):
-        student = self.context['request'].user
-        booking_date = data.get('booking_date')
-        infrastructure = data.get('infrastructure')
 
-        # Check if the student has already booked a slot for the same day
-        if Booking.objects.filter(student=student, booking_date=booking_date, status="Approved").exists():
+    def validate(self, data):
+        user = self.context['request'].user
+        requested_slot = data.get('requested_slot')
+        facility = data.get('facility')
+   
+    # Ensure the user can book only one slot per day
+        if Booking.objects.filter(user=user, requested_slot__date=requested_slot.date(), status="Approved").exists():
             raise serializers.ValidationError("You can only book one slot per day.")
 
-        # Check if the requested slot is available
+        # Ensure no overlapping bookings
         overlapping_booking = Booking.objects.filter(
-            infrastructure=infrastructure,
-            booking_date=booking_date,
-            time_slot = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", input_formats=["%Y-%m-%d %H:%M:%S"]),
+            facility=facility,
+            requested_slot=requested_slot,
             status="Approved"
         )
 
@@ -67,6 +58,9 @@ class BookingSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("This time slot is already booked. Please choose another slot.")
 
         return data
+    
+  
+    
 """"
 Serializer for handling waitlist requests
  - Handles students who want to join the waitlist when a slot is already booked.
@@ -74,26 +68,27 @@ Serializer for handling waitlist requests
 """
 
 class WaitlistSerializer(serializers.ModelSerializer):
-    student = serializers.ReadOnlyField(source='student.username')
-    infrastructure_name = serializers.ReadOnlyField(source='infrastructure.name')
+    user = serializers.ReadOnlyField(source='user.username')
+    facility_name = serializers.ReadOnlyField(source='facility.name')
 
     class Meta:
-        model = Waitlist
+        model = WaitlistBooking
         fields = '__all__'
 
-"""
-    Custom logic:
-         -Add students to the waitlist in sequential order.
- """
-def create(self, validated_data):
-        infrastructure = validated_data['infrastructure']
-        booking_date = validated_data['booking_date']
-        start_time = validated_data['start_time']
-        end_time = validated_data['end_time']
+
+
+# Custom logic:
+#  - Add students to the waitlist in sequential order.
+
+
+    def create(self, validated_data):
+        facility = validated_data['facility']
+        date = validated_data['date']
+        time_slot = validated_data['time_slot']
 
         # Determine the waitlist position
-        position = Waitlist.objects.filter(
-            infrastructure=infrastructure, booking_date=booking_date, start_time=start_time, end_time=end_time
+        position = WaitlistBooking.objects.filter(
+            facility=facility, date=date, time_slot=time_slot
         ).count() + 1
 
         validated_data['position'] = position

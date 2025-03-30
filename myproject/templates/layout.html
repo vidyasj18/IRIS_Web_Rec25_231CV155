@@ -69,10 +69,14 @@
 
     <!-- Features Section -->
     
-    <section id="equipment">
-        {% include "index.html" %}
-    </section>
-    <section id="infrastructure">
+    <section class="text-center py-10">
+        <button onclick="window.location.href='/dashboard/'" 
+            class="bg-purple-700 text-white px-6 py-3 rounded-lg text-lg transition-transform transform hover:scale-105">
+            Go to Equipment Dashboard
+        </button>
+    </section>    
+
+    {% comment %} <section id="infrastructure">
         {% include "booking.html" %}
     </section>
     <section id="dashboard">
@@ -81,7 +85,7 @@
     <section id="notifications">
         {% include "notifications_list.html" %}
     </section>
-    
+     {% endcomment %}
 
     <main>
         {% block content %}

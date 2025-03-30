@@ -3,8 +3,11 @@
 <html lang="en">
 <head>
     <title>Student Dashboard</title>
+    {% load static %}
+    <script src="{% static 'javascript/dashboard.js' %}" defer></script>
+    <script src="{% static 'javascript/waitlist.js' %}" defer></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="{% static 'js/dashboard.js' %}" defer></script>
+
 
     <style>
         @keyframes fadeIn {
@@ -33,8 +36,10 @@
                     {% for equipment in available_equipment %}
                         <li class="p-2 border rounded mt-2 flex justify-between">
                             {{ equipment.name }} ({{ equipment.quantity }} available)
-                            <a href="{% url 'book_equipment' equipment.id %}" 
-                            class="bg-blue-500 text-white px-4 py-1 rounded">Book</a>
+                            <button class="bg-blue-500 text-white px-4 py-1 rounded book-equipment-btn" 
+                                    data-equipment-id="{{ equipment.id }}">
+                                Book
+                            </button>
                         </li>
                     {% empty %}
                     <p class="text-red-500">No equipment available.</p>
@@ -78,4 +83,4 @@
     <script src="{% static 'js/waitlist.js' %}"></script>
 
 </body>
-</html>
+</html> 

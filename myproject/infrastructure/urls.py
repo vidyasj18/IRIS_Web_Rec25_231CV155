@@ -1,7 +1,7 @@
 # all the URLs of infrastructure module are defined here.
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import InfrastructureViewSet, BookingViewSet, WaitlistViewSet
+from .views import InfrastructureViewSet, BookingViewSet, waitlistViewSet, user_bookings
 from . import views
 
 router = DefaultRouter() # simplifies URL routing for APIs
@@ -12,9 +12,9 @@ router.register(r'infrastructures', InfrastructureViewSet)
 # registers "BookingViewSet" at /BookingViewSet.
 # users can book sports facilities and track their requests and even they can cancel as well.
 router.register(r'bookings', BookingViewSet, basename='booking')
-# router.register(r'waitlist', WaitlistViewSet, basename='waitlist')
+router.register(r'waitlist', waitlistViewSet, basename='waitlist')
 
 urlpatterns = [
     path('', include(router.urls)), 
-    path("",views.infrastructure_list,name="infrastructure_list"),
+    path('user/bookings/', user_bookings, name='user-bookings'),
 ]

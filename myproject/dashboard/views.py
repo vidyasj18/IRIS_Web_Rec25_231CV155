@@ -2,53 +2,67 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from equipment.models import Equipment
 from django.shortcuts import render, get_object_or_404, redirect
-from infrastructure.models import Booking
+from infrastructure.models import Booking, WaitlistBooking
 from notifications.models import Notification
 from django.http import JsonResponse
+from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+from infrastructure.models import Infrastructure
+from infrastructure.models import FacilityRequest
+
 
 # Create your views here.
 # Student Dashboard - Displays available equipment & facilities
 @login_required
 def student_dashboard(request):
-    available_equipment = Equipment.objects.filter(availability='Available')
-    available_facilities = Equipment.objects.filter(availability=True)
-    notifications = Notification.objects.filter(user=request.user, is_read=False)
+    user = request.user
+    available_equipment = Equipment.objects.filter(availability=True)
+    available_facilities = Infrastructure.objects.filter(availability=True)
+    waitlist = WaitlistBooking.objects.filter(user=user)
+    notifications = Notification.objects.filter(user=user, is_read=False)
 
-    return render(request, 'dashboard/student_dashboard.html', {
+    return render(request, 'student_dashboard.html', {
         'available_equipment': available_equipment,
         'available_facilities': available_facilities,
-        'notifications':notifications
+        'waitlist': waitlist,
+        'notifications':notifications,
     })
 
 # Equipment Booking View - allows students to book equipment.
 @login_required
 def book_equipment(request, equipment_id):
-    equipment = get_object_or_404(Equipment, id=equipment_id)
-
     if request.method == "POST":
-        quantity = int(request.POST['quantity'])
-        if quantity > 1:
-            return render(request, 'dashboard/book_equipment.html', {'equipment': equipment, 'error': 'One can not book more than one equipment.'})
+        equipment = get_object_or_404(Equipment, id=equipment_id)
+
+        # Ensure user can only book 1 at a time
+        if Booking.objects.filter(user=request.user, equipment=equipment, status='pending').exists():
+            return JsonResponse({'error': 'You already have a pending booking for this equipment'}, status=400)
 
         # Reduce equipment stock as one equipment is booked.
-        equipment.quantity -= quantity
-        equipment.save()
+        if equipment.quantity > 0:
+            equipment.quantity -= 1
+            equipment.save()
 
-        # Send notification
-        Notification.objects.create(user=request.user, message=f"You booked {quantity} {equipment.name}.")
-        return JsonResponse({'success': True})
+            Booking.objects.create(user=request.user, equipment=equipment, status='pending')
+
+            # Send notification
+            Notification.objects.create(user=request.user, message=f"You booked {equipment.name}.")
+            return JsonResponse({'success': True})
+        
+        return JsonResponse({'error': 'Equipment is out of stock'}, status=400)
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 # Facility Booking View - Lets students request to book a sports facility.
 @login_required
 def request_facility(request, facility_id):
-    facility = get_object_or_404(Equipment, id=facility_id)
+    facility = get_object_or_404(FacilityRequest, id=facility_id)
 
     if request.method == "POST":
         time_slot = request.POST['time_slot']
-        booking = Booking.objects.create(user=request.user, facility=facility, time_slot=time_slot, status='Pending')
-        
+        # create facility request
+        Booking.objects.create(user=request.user, facility=facility, time_slot=time_slot, status='pending')
+
         # send notification
         Notification.objects.create(user=request.user, message=f"Your facility request for {facility.name} at {time_slot} is pending.")
 
@@ -60,46 +74,35 @@ def request_facility(request, facility_id):
 @login_required
 def cancel_request(request, request_id):
     booking = get_object_or_404(Booking, id=request_id, user=request.user)
-    booking.delete()
+
+    if booking.status == 'pending':  # Allow cancellation only if still pending
+        booking.delete()
+        Notification.objects.create(user=request.user, message="Your booking request has been cancelled.")
+        return JsonResponse({'success': True})
+
+    return JsonResponse({'error': 'Request cannot be canceled'}, status=400)
+
     
-    # Send notification
-    Notification.objects.create(user=request.user, message="Your booking request has been cancelled.")
-
-    return JsonResponse({'success': True})
-
-# helps in fetching equipment list,bookings and notifications.
-# this function helps in passing all the data to the front-end.
-def dashboard_view(request):
-    equipment = Equipment.objects.all()
-    bookings = Booking.objects.all()
-    notifications = Notification.objects.filter(user=request.user, is_read=False)
-
-    return render(request, "student_dashboard.html", {
-        "equipment": equipment,
-        "bookings": bookings,
-        "notifications": notifications
-    })
-
 
 # students can see the waitlist and position they are in the waitlist.
 @login_required
-def waitlist_booking(request, facility_id):
-    facility = get_object_or_404(Equipment, id=facility_id)
+def waitlistBooking(request, facility_id):
+    equipment = get_object_or_404(equipment, id=facility_id)
     
     if request.method == "POST":
-        approved_bookings = Booking.objects.filter(facility=facility, status='Approved').count()
-        total_capacity = facility.capacity
+        approved_bookings = Booking.objects.filter(equipment=equipment, status='Approved').count()
+        total_capacity = equipment.capacity
 
         if approved_bookings >= total_capacity:
             # Get current waitlist position
-            waitlist_count = Booking.objects.filter(facility=facility, status='Waitlisted').count()
+            waitlist_count = WaitlistBooking.objects.filter(equipment=equipment, status='Waitlisted').count()
             position = waitlist_count + 1
 
             # Add student to waitlist
-            Booking.objects.create(user=request.user, facility=facility, status='Waitlisted')
+            WaitlistBooking.objects.create(user=request.user, equipment=equipment, status='Waitlisted')
 
             # Send notification
-            Notification.objects.create(user=request.user, message=f"You are waitlisted for {facility.name}. Position: {position}")
+            Notification.objects.create(user=request.user, message=f"You are waitlisted for {equipment.name}. Position: {position}")
 
             return JsonResponse({'success': True, 'waitlisted': True, 'position': position})
 
@@ -108,15 +111,35 @@ def waitlist_booking(request, facility_id):
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
+
+# helps in fetching equipment list,bookings and notifications.
+# this function helps in passing all the data to the front-end.
+def dashboard_view(request):
+    equipment_list = Equipment.objects.all()  # Fetch all equipment
+    # Fetch user requests
+    requests = Booking.objects.filter(user=request.user) if hasattr(Booking, 'user') else Booking.objects.all()
+    
+    waitlist = WaitlistBooking.objects.filter(user=request.user) if hasattr(waitlist, 'user') else waitlist.objects.all() # Fetch user waitlist
+    notifications = Notification.objects.filter(user=request.user)  # Fetch user notifications
+    
+    return render(request, 'dashboard.html', {
+        'equipment_list': equipment_list,
+        'requests': requests,
+        'waitlist': waitlist,
+        'notifications': notifications
+    })
+   
+
+
 # backend API for AJAX to fetch updates.
 @login_required
 def dashboard_updates(request):
-    equipment = list(Equipment.objects.filter(availability='Available').values('id', 'name', 'quantity'))
-    # facilities = list(Facility.objects.filter(is_available=True).values('id', 'name', 'location'))
+    equipment = list(Equipment.objects.filter(availability=True).values('id', 'name', 'quantity','availability'))
+    facilities = list(Equipment.objects.filter(is_available=True).values('id', 'name'))
     notifications = list(Notification.objects.filter(user=request.user, is_read=False).values('message'))
 
     return JsonResponse({
         "equipment": equipment,
-        # "facilities": facilities,
+        "facilities": facilities,
         "notifications": notifications
     })

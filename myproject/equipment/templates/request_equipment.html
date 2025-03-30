@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container mx-auto mt-10">
-    <h1 class="text-2xl font-bold mb-4">Request Equipment</h1>
+    <a class="text-2xl font-bold mb-4" >Request Equipment</a>
     <form method="POST">
         {% csrf_token %}
         {{ form.as_p }}
