@@ -23,6 +23,7 @@ from django.conf.urls.static import static
 from django.conf import settings 
 from django.urls import get_resolver
 
+
 # contains all the urlpatterns for all the apps in the project
 urlpatterns = [
     path('admin/', admin.site.urls), # admin panel
@@ -34,7 +35,7 @@ urlpatterns = [
     path('notifications/', include('notifications.urls')),
     path('infrastructure/', include('infrastructure.urls')), # API will now be accessible at /api/infrastructure/
     path('dashboard/', include('dashboard.urls')),
-    path('api/', include('dashboard.urls')),
+    # path('api/', include('dashboard.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

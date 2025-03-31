@@ -20,6 +20,7 @@ class Infrastructure(models.Model):
 class Booking(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bookings")
     equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE, related_name="bookings",default=True)
+    # facility = models.ForeignKey(Infrastructure, on_delete=models.CASCADE, related_name="bookings",default=True)
     request_date = models.DateTimeField(auto_now_add=True)
     requested_slot = models.DateTimeField()
     status = models.CharField(
@@ -36,6 +37,7 @@ class Booking(models.Model):
 class WaitlistBooking(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="waitlist_bookings")
     equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE, related_name="waitlists",default=True)
+    # facility = models.ForeignKey(Infrastructure, on_delete=models.CASCADE, related_name="waitlists",default=True)
     date = models.DateField()
     time_slot = models.TimeField(default=now)
     position = models.IntegerField()  # User's position in the waitlist
@@ -66,7 +68,8 @@ class FacilityRequest(models.Model):
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="facility_requests")
-    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE, default=1)  # Replace 1 with a valid facility ID
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE, default=1)
+    # facility = models.ForeignKey(Infrastructure, on_delete=models.CASCADE, default=1)  
     time_slot = models.TimeField(default=now)  # Requested booking time
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(default=now)

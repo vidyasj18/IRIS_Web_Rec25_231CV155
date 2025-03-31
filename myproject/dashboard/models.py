@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from infrastructure.views import Infrastructure
+from infrastructure.models import Infrastructure
 from equipment.models import Equipment
 
 User = get_user_model()

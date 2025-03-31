@@ -12,6 +12,8 @@ from rest_framework.decorators import api_view
 from .models import Infrastructure, Booking, WaitlistBooking, Notification
 from .serializers import InfrastructureSerializer, BookingSerializer, WaitlistSerializer
 from notifications.utils import send_notification
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 
 
 
@@ -171,3 +173,20 @@ def user_bookings(request):
     bookings = Booking.objects.filter(user=user).order_by('-requested_slot')
     serializer = BookingSerializer(bookings, many=True)
     return Response(serializer.data)
+
+
+# for handling cancel requests.
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def cancel_booking(request, booking_id):
+    """Handles user booking cancellation"""
+    booking = get_object_or_404(Booking, id=booking_id, user=request.user)
+
+    # Allow cancellation requests for any status
+    if booking.status in ['Approved', 'Pending']:
+        booking.status = 'cancel_pending'  # Mark for admin approval
+        booking.save()
+        send_notification(booking.user, "Your cancellation request is pending approval.")
+        return Response({'message': 'Cancellation request submitted for approval.'}, status=status.HTTP_200_OK)
+    
+    return Response({'error': 'This booking cannot be canceled.'}, status=status.HTTP_400_BAD_REQUEST)

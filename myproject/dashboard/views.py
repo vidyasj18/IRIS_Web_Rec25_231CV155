@@ -9,6 +9,10 @@ from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 from infrastructure.models import Infrastructure
 from infrastructure.models import FacilityRequest
+import json
+from django.http import JsonResponse
+from django.utils.dateparse import parse_datetime
+
 
 
 # Create your views here.
@@ -20,43 +24,68 @@ def student_dashboard(request):
     available_facilities = Infrastructure.objects.filter(availability=True)
     waitlist = WaitlistBooking.objects.filter(user=user)
     notifications = Notification.objects.filter(user=user, is_read=False)
+    requests = Booking.objects.filter(user=user)  # Fetch user's bookings
 
     return render(request, 'student_dashboard.html', {
         'available_equipment': available_equipment,
         'available_facilities': available_facilities,
         'waitlist': waitlist,
         'notifications':notifications,
+        'requests': requests,
     })
 
 # Equipment Booking View - allows students to book equipment.
 @login_required
 def book_equipment(request, equipment_id):
     if request.method == "POST":
-        equipment = get_object_or_404(Equipment, id=equipment_id)
+    #     equipment = get_object_or_404(Equipment, id=equipment_id)
 
-        # Ensure user can only book 1 at a time
-        if Booking.objects.filter(user=request.user, equipment=equipment, status='pending').exists():
-            return JsonResponse({'error': 'You already have a pending booking for this equipment'}, status=400)
+    #     # Ensure user can only book 1 at a time
+    #     if Booking.objects.filter(user=request.user, equipment=equipment, status='pending').exists():
+    #         return JsonResponse({'error': 'You already have a pending booking for this equipment'}, status=400)
 
-        # Reduce equipment stock as one equipment is booked.
-        if equipment.quantity > 0:
-            equipment.quantity -= 1
-            equipment.save()
+    #     # Reduce equipment stock as one equipment is booked.
+    #     if equipment.quantity > 0:
+    #         equipment.quantity -= 1
+    #         equipment.save()
 
-            Booking.objects.create(user=request.user, equipment=equipment, status='pending')
+    #         Booking.objects.create(user=request.user, equipment=equipment, status='pending')
 
-            # Send notification
-            Notification.objects.create(user=request.user, message=f"You booked {equipment.name}.")
-            return JsonResponse({'success': True})
+    #         # Send notification
+    #         Notification.objects.create(user=request.user, message=f"You booked {equipment.name}.")
+    #         return JsonResponse({'success': True})
         
-        return JsonResponse({'error': 'Equipment is out of stock'}, status=400)
+    #     return JsonResponse({'error': 'Equipment is out of stock'}, status=400)
 
-    return JsonResponse({'error': 'Invalid request'}, status=400)
+    # return JsonResponse({'error': 'Invalid request'}, status=400)
+        try:
+            data = json.loads(request.body)
+            requested_slot = data.get("requested_slot")
+
+            if not requested_slot:
+                return JsonResponse({"success": False, "error": "Requested slot is required"}, status=400)
+
+            # Convert requested_slot to a Python datetime object
+            requested_slot = parse_datetime(requested_slot)
+            if requested_slot is None:
+                return JsonResponse({"success": False, "error": "Invalid date format"}, status=400)
+
+            # Create the booking
+            booking = Booking.objects.create(
+                user=request.user,
+                equipment_id=equipment_id,
+                requested_slot=requested_slot,
+                status="Pending"
+            )
+            return JsonResponse({"success": True})
+        
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 # Facility Booking View - Lets students request to book a sports facility.
 @login_required
 def request_facility(request, facility_id):
-    facility = get_object_or_404(FacilityRequest, id=facility_id)
+    facility = get_object_or_404(Infrastructure, id=facility_id)
 
     if request.method == "POST":
         time_slot = request.POST['time_slot']
@@ -87,7 +116,7 @@ def cancel_request(request, request_id):
 # students can see the waitlist and position they are in the waitlist.
 @login_required
 def waitlistBooking(request, facility_id):
-    equipment = get_object_or_404(equipment, id=facility_id)
+    equipment = get_object_or_404(Equipment, id=facility_id)
     
     if request.method == "POST":
         approved_bookings = Booking.objects.filter(equipment=equipment, status='Approved').count()
@@ -117,9 +146,9 @@ def waitlistBooking(request, facility_id):
 def dashboard_view(request):
     equipment_list = Equipment.objects.all()  # Fetch all equipment
     # Fetch user requests
-    requests = Booking.objects.filter(user=request.user) if hasattr(Booking, 'user') else Booking.objects.all()
+    requests = Booking.objects.filter(user=request.user) 
     
-    waitlist = WaitlistBooking.objects.filter(user=request.user) if hasattr(waitlist, 'user') else waitlist.objects.all() # Fetch user waitlist
+    waitlist = WaitlistBooking.objects.filter(user=request.user) 
     notifications = Notification.objects.filter(user=request.user)  # Fetch user notifications
     
     return render(request, 'dashboard.html', {
@@ -135,7 +164,7 @@ def dashboard_view(request):
 @login_required
 def dashboard_updates(request):
     equipment = list(Equipment.objects.filter(availability=True).values('id', 'name', 'quantity','availability'))
-    facilities = list(Equipment.objects.filter(is_available=True).values('id', 'name'))
+    facilities = list(Infrastructure.objects.filter(availability=True).values('id', 'name'))
     notifications = list(Notification.objects.filter(user=request.user, is_read=False).values('message'))
 
     return JsonResponse({
@@ -143,3 +172,10 @@ def dashboard_updates(request):
         "facilities": facilities,
         "notifications": notifications
     })
+
+@login_required
+def user_bookings(request):
+    bookings = Booking.objects.filter(user=request.user).values(
+        "id", "equipment__name", "status", "requested_slot"
+    )
+    return JsonResponse(list(bookings), safe=False)

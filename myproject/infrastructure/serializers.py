@@ -27,11 +27,11 @@ class InfrastructureSerializer(serializers.ModelSerializer):
 # serializer for handling booking details.
 class BookingSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')  # Read-only field to display the student's username
-    facility_name = serializers.ReadOnlyField(source='facility.name')
+    facility_name = serializers.CharField(source='infrastructure.name',read_only=True)
 
     class Meta:
         model = Booking
-        fields = "__all__,"
+        fields = "__all__"
 
 # Custom validation to ensure:
 #   - The student can book only 1 slot per day.
