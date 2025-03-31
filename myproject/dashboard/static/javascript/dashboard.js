@@ -164,98 +164,98 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    fetchUserBookings();
+    // fetchUserBookings();
 
-    // Book an infrastructure slot
-    function bookInfrastructure(infraId) {
-        fetch("/api/bookings/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": getCSRFToken(),
-            },
-            body: JSON.stringify({
-                infrastructure: infraId,
-                start_time: new Date().toISOString(), // Adjust as needed
-            }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                alert(data.error);
-            } else {
-                alert("Booking request submitted!");
-                fetchUserBookings();
-            }
-        })
-        .catch(error => console.error("Error booking infrastructure:", error));
-    }
+    // // Book an infrastructure slot
+    // function bookInfrastructure(infraId) {
+    //     fetch("/api/bookings/", {
+    //         method: "POST",
+    //         headers: {
+    //             "Content-Type": "application/json",
+    //             "X-CSRFToken": getCSRFToken(),
+    //         },
+    //         body: JSON.stringify({
+    //             infrastructure: infraId,
+    //             start_time: new Date().toISOString(), // Adjust as needed
+    //         }),
+    //     })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         if (data.error) {
+    //             alert(data.error);
+    //         } else {
+    //             alert("Booking request submitted!");
+    //             fetchUserBookings();
+    //         }
+    //     })
+    //     .catch(error => console.error("Error booking infrastructure:", error));
+    // }
 
-    // Fetch and display available infrastructures
-    function fetchInfrastructure() {
-        fetch("/api/infrastructures/")
-            .then(response => response.json())
-            .then(data => {
-                const infraContainer = document.getElementById("infrastructure-list");
-                infraContainer.innerHTML = "";
-                data.forEach(infra => {
-                    const infraCard = `
-                        <div class="infra-card">
-                            <h3>${infra.name}</h3>
-                            <p>Location: ${infra.location}</p>
-                            <p>Capacity: ${infra.capacity}</p>
-                            <p>Operating Hours: ${infra.operating_hours}</p>
-                            <button onclick="bookInfrastructure(${infra.id})">Book</button>
-                        </div>
-                `   ;
-                    infraContainer.innerHTML += infraCard;
-                });
-            })
-            .catch(error => console.error("Error fetching infrastructures:", error));
-    }
+    // // Fetch and display available infrastructures
+    // function fetchInfrastructure() {
+    //     fetch("/api/infrastructures/")
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             const infraContainer = document.getElementById("infrastructure-list");
+    //             infraContainer.innerHTML = "";
+    //             data.forEach(infra => {
+    //                 const infraCard = `
+    //                     <div class="infra-card">
+    //                         <h3>${infra.name}</h3>
+    //                         <p>Location: ${infra.location}</p>
+    //                         <p>Capacity: ${infra.capacity}</p>
+    //                         <p>Operating Hours: ${infra.operating_hours}</p>
+    //                         <button onclick="bookInfrastructure(${infra.id})">Book</button>
+    //                     </div>
+    //             `   ;
+    //                 infraContainer.innerHTML += infraCard;
+    //             });
+    //         })
+    //         .catch(error => console.error("Error fetching infrastructures:", error));
+    // }
 
-    function fetchUserBookings() {
-        fetch("/api/user/bookings/")
-            .then(response => response.json())
-            .then(data => {
-                const bookingContainer = document.getElementById("user-bookings");
-                bookingContainer.innerHTML = "";
-                data.forEach(booking => {
-                    const bookingItem = `
-                        <div class="booking-card">
-                            <p>Infrastructure: ${booking.infrastructure.name}</p>
-                            <p>Status: ${booking.status}</p>
-                            ${booking.status === "Pending" ? `<button onclick="cancelBooking(${booking.id})">Cancel</button>` : ""}
-                        </div>
-                    `;
-                    bookingContainer.innerHTML += bookingItem;
-                });
-            })
-            .catch(error => console.error("Error fetching bookings:", error));
-    }
+    // function fetchUserBookings() {
+    //     fetch("/api/user/bookings/")
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             const bookingContainer = document.getElementById("user-bookings");
+    //             bookingContainer.innerHTML = "";
+    //             data.forEach(booking => {
+    //                 const bookingItem = `
+    //                     <div class="booking-card">
+    //                         <p>Infrastructure: ${booking.infrastructure.name}</p>
+    //                         <p>Status: ${booking.status}</p>
+    //                         ${booking.status === "Pending" ? `<button onclick="cancelBooking(${booking.id})">Cancel</button>` : ""}
+    //                     </div>
+    //                 `;
+    //                 bookingContainer.innerHTML += bookingItem;
+    //             });
+    //         })
+    //         .catch(error => console.error("Error fetching bookings:", error));
+    // }
 
-    // Cancel a booking
-    function cancelBooking(bookingId) {
-        fetch(`/api/cancel-booking/${bookingId}/`, {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": getCSRFToken(),
-            },
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            fetchUserBookings();
-        })
-        .catch(error => console.error("Error canceling booking:", error));
-    }
+    // // Cancel a booking
+    // function cancelBooking(bookingId) {
+    //     fetch(`/api/cancel-booking/${bookingId}/`, {
+    //         method: "POST",
+    //         headers: {
+    //             "X-CSRFToken": getCSRFToken(),
+    //         },
+    //     })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         alert(data.message);
+    //         fetchUserBookings();
+    //     })
+    //     .catch(error => console.error("Error canceling booking:", error));
+    // }
 
-    // Get CSRF token
-    function getCSRFToken() {
-        return document.cookie.split('; ')
-            .find(row => row.startsWith('csrftoken='))
-            ?.split('=')[1];
-    }
+    // // Get CSRF token
+    // function getCSRFToken() {
+    //     return document.cookie.split('; ')
+    //         .find(row => row.startsWith('csrftoken='))
+    //         ?.split('=')[1];
+    // }
 
     // Fetch bookings 
     fetchUserBookings();

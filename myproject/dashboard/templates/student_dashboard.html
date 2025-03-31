@@ -107,7 +107,7 @@
         </template> {% endcomment %}
 
         <!-- Available Facilities -->
-        <h2 class="text-lg font-semibold mt-4">Available Facilities</h2>
+        {% comment %} <h2 class="text-lg font-semibold mt-4">Available Facilities</h2>
         <ul>
             {% for facility in available_facilities %}
                 <li class="p-2 border rounded mt-2 flex justify-between">
@@ -132,7 +132,7 @@
                 <p class="text-red-500">No facilities available.</p>
             {% endfor %}
         </ul>
-    </div> 
+    </div>  {% endcomment %}
 
     <!-- CSRF Token for JavaScript -->
     <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">

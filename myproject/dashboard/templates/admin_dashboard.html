@@ -1,0 +1,104 @@
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Admin Dashboard</title>
+    {% load static %}
+    <script src="{% static 'javascript/admin_dashboard.js' %}" defer></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+    </style>
+</head>
+<body class="w-full min-h-screen flex bg-black">
+    
+    <!-- Sidebar -->
+    <aside class="w-64 bg-indigo-950 text-white min-h-screen p-6">
+        <h2 class="text-xl font-bold mb-4">Admin Dashboard</h2>
+        <nav>
+            <ul class="space-y-3">
+                <li><a href="/admin-dashboard/" class="block py-2 px-4 rounded hover:bg-blue-700">Home</a></li>
+                <li><a href="#manage-equipment" class="block py-2 px-4 rounded hover:bg-blue-700">Manage Equipment</a></li>
+                <li><a href="#booking-requests" class="block py-2 px-4 rounded hover:bg-blue-700">Booking Requests</a></li>
+                <li><a href="#analytics" class="block py-2 px-4 rounded hover:bg-blue-700">Analytics</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-bold text-white mb-4">Admin Dashboard</h1>
+
+        <!-- Booking Requests Section -->
+        <section class="mb-6">
+            <h2 class="text-xl font-semibold text-white mb-2">Equipment Bookings</h2>
+            <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
+                <ul>
+                    {% for booking in bookings %}
+                        <li class="p-3 border-b border-gray-700 flex justify-between text-white">
+                            <span>{{ booking.user.username }} booked {{ booking.equipment.name }} (Status: <strong>{{ booking.status }}</strong>)</span>
+                            <div>
+                                {% comment %} {% if booking.status == "Pending" %} {% endcomment %}
+                                    <div>
+                                        <button class="approve-btn bg-green-600 text-white px-4 py-1 rounded hover:bg-green-500"
+                                                data-booking-id="{{ booking.id }}">
+                                            Approve
+                                        </button>
+                                        <button class="reject-btn bg-red-600 text-white px-4 py-1 rounded hover:bg-red-500"
+                                                data-booking-id="{{ booking.id }}">
+                                            Reject
+                                        </button>
+                                    </div>        
+                                {% comment %} {% endif %} {% endcomment %}
+                            </div>
+                        </li>
+                    {% empty %}
+                        <p class="text-gray-500">No pendings found.</p>
+                    {% endfor %}
+                </ul>
+            </div>
+        </section>
+
+        <!-- Waitlist Section -->
+        <section class="mb-6">
+            <h2 class="text-xl font-semibold text-white mb-2">Waitlist</h2>
+            <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
+                <ul>
+                    {% for wait in waitlist %}
+                        <li class="p-3 border-b border-gray-700 flex justify-between text-white">
+                            <span>{{ wait.user.username }} is waiting for {{ wait.equipment.name }} (Position: {{ wait.position }})</span>
+                        </li>
+                    {% empty %}
+                        <p class="text-gray-500 text-white">No users in the waitlist.</p>
+                    {% endfor %}
+                </ul>
+            </div>
+        </section>
+
+        <!-- Notifications -->
+        <section class="mb-6">
+            <h2 class="text-xl font-semibold text-white mb-2">Notifications</h2>
+            <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
+                <ul>
+                    {% for notification in notifications %}
+                        <li class="p-3 border-b border-gray-700 flex justify-between text-white">
+                            <span>{{ notification.message }}</span>
+                        </li>
+                    {% empty %}
+                        <p class="text-gray-500 text-white">No notifications.</p>
+                    {% endfor %}
+                </ul>
+            </div>
+        </section>
+    </div>
+{% endblock %}
+
+</body>
+</html> 

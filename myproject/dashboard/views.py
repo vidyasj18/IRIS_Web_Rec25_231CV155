@@ -12,6 +12,9 @@ from infrastructure.models import FacilityRequest
 import json
 from django.http import JsonResponse
 from django.utils.dateparse import parse_datetime
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required, user_passes_test
+
 
 
 
@@ -179,3 +182,26 @@ def user_bookings(request):
         "id", "equipment__name", "status", "requested_slot"
     )
     return JsonResponse(list(bookings), safe=False)
+
+
+# Check if user is admin 
+def is_admin(user):
+    return user.is_staff or user.is_superuser
+
+@login_required
+@user_passes_test(is_admin)
+def custom_admin_dashboard(request):
+    # Fetch pending equipment bookings
+    bookings = Booking.objects.filter(status="Pending")  # Ensure status is 'Pending'
+    
+    # Fetch waitlist data
+    waitlist = WaitlistBooking.objects.all()  # Modify as per your requirement
+
+    # Fetch notifications
+    notifications = Notification.objects.all()
+
+    return render(request, "admin_dashboard.html", {
+        "bookings": bookings,
+        "waitlist": waitlist,
+        "notifications": notifications
+    })
