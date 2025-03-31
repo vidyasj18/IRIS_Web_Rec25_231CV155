@@ -40,3 +40,4 @@ List of non-implemented/planned features
 - sending emails regarding their penalty or when their time slot gets over.
 
 A Demo Video showcasing all features of your project
+https://1drv.ms/v/c/13ed0492d142490c/ES5NPB6yQf5EiDVyDQM5nMkB7yV1a7eatqEdrjJ06Xdp3Q?e=kYse2r
