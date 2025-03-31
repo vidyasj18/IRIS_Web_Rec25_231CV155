@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_celery_beat',
     'dashboard',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -150,3 +151,12 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+ASGI_APPLICATION = "myproject.asgi.application"
+
+# In-memory channel layer (for testing; use Redis for production)
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}

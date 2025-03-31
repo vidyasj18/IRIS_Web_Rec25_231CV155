@@ -14,6 +14,11 @@ from django.http import JsonResponse
 from django.utils.dateparse import parse_datetime
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 
 
@@ -205,3 +210,25 @@ def custom_admin_dashboard(request):
         "waitlist": waitlist,
         "notifications": notifications
     })
+
+@csrf_exempt
+def update_booking_status(request, booking_id):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            action = data.get("status")  # "Approved" or "Rejected"
+
+            # Ensure booking exists
+            booking = Booking.objects.get(id=booking_id)
+            booking.status = action
+            booking.save()
+
+            return JsonResponse({"success": True})
+
+        except Booking.DoesNotExist:
+            return JsonResponse({"success": False, "error": "Booking not found"}, status=404)
+
+        except json.JSONDecodeError:
+            return JsonResponse({"success": False, "error": "Invalid JSON format"}, status=400)
+
+    return JsonResponse({"success": False, "error": "Invalid request method"}, status=405)

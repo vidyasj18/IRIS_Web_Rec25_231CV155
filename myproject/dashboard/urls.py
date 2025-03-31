@@ -6,6 +6,7 @@ from .views import dashboard_view, dashboard_updates
 from .views import waitlistBooking
 from . import views  
 from .views import custom_admin_dashboard
+from .views import update_booking_status
 
 
 urlpatterns = [
@@ -18,4 +19,5 @@ urlpatterns = [
     path("api/user-bookings/", views.user_bookings, name="user_bookings"),
     path('waitlist-booking/<int:facility_id>/', waitlistBooking, name='waitlist'),
     path('admin-dashboard/', custom_admin_dashboard, name='admin-dashboard'),
+    path("update-booking/<int:booking_id>/", update_booking_status, name="update-booking"),
 ]
