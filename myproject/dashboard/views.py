@@ -22,7 +22,6 @@ from asgiref.sync import async_to_sync
 
 
 
-
 # Create your views here.
 # Student Dashboard - Displays available equipment & facilities
 @login_required
@@ -232,3 +231,4 @@ def update_booking_status(request, booking_id):
             return JsonResponse({"success": False, "error": "Invalid JSON format"}, status=400)
 
     return JsonResponse({"success": False, "error": "Invalid request method"}, status=405)
+

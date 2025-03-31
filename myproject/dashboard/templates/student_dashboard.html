@@ -45,7 +45,7 @@
         <!-- Available Equipment -->
         <section id="equipment" class="mt-6 animate-fade-in">
             <div class="bg-gray p-4 shadow-xl shadow-xl rounded-lg transition-transform duration-300 hover:scale-[1.02]">
-                <h2 class="text-xl font-semibold mb-2 text-whitesmoke">Available Equipment</h2>
+                <h2 class="text-xl font-semibold mb-2 text-white">Available Equipment</h2>
                 <ul id="equipment-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {% for equipment in available_equipment %}
                         <li class="p-3 border border-gray-700 rounded flex justify-between bg-gray-800 text-white shadow-lg">
@@ -56,7 +56,7 @@
                             </button>
                         </li>
                     {% empty %}
-                        <p class="text-red-500">No equipment available.</p>
+                        <p class="text-red-500 text-white">No equipment available.</p>
                     {% endfor %}
                 </ul>
             </div>
@@ -75,7 +75,7 @@
                     </button>
                 </li>
             {% empty %}
-                <p class="text-gray-500">No active bookings.</p>
+                <p class="text-white">No active bookings.</p>
             {% endfor %}
         </ul> 
          

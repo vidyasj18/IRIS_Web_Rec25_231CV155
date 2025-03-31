@@ -4,7 +4,9 @@ from django.shortcuts import render,redirect
 from .forms import CustomUserCreationForm
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login
+from django.contrib.auth import logout
 
+from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import get_user_model
 from django.http import JsonResponse
 
@@ -29,9 +31,9 @@ def register_view(request):
             user = form.save() 
             login(request,user)
             return redirect("posts:list")
-    else:
-        form = CustomUserCreationForm()
-    return render(request, "users/register.html", { "form": form })
+        else:
+            form = CustomUserCreationForm()
+            return render(request, "users/register.html", { "form": form })
 
 def login_view(request):
     if request.method == "POST":
@@ -45,5 +47,11 @@ def login_view(request):
     else:
         form = AuthenticationForm()
     return render(request, "users/login.html", {"form": form})
+
+def logout_view(request):
+    if request.method == "POST": 
+        logout(request) 
+        return redirect("posts:list")
+        
 
     
