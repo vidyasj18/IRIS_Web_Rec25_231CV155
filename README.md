@@ -28,16 +28,3 @@ User Role:
 Common Features
 - Role-Based Access Control: Separate functionalities for Users and Admins.
 - Admin can add posts that acts as the updates for students.
-
-List of features not implemented
-but written code
-- waitlist for Users.
-- Analytics dashboard.
-- notifications for a remainder before 30 minutes.
-
-List of non-implemented/planned features
-- penalty system.
-- sending emails regarding their penalty or when their time slot gets over.
-
-A Demo Video showcasing all features of your project
-https://1drv.ms/v/c/13ed0492d142490c/ES5NPB6yQf5EiDVyDQM5nMkB7yV1a7eatqEdrjJ06Xdp3Q?e=kYse2r
